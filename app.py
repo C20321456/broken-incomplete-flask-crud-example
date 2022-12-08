@@ -14,6 +14,70 @@ app.config['MYSQL_DB'] = 'student'
 app.config['MYSQL_HOST'] = '34.105.168.32'
 mysql.init_app(app)
 
+def insert(cursor, name, email):
+    string = f"INSERT INTO students(studentName,email) VALUES('{name}','{email}')"
+
+    try:
+        cursor.execute(string)
+        mysql.connection.commit()
+        print("YUPPPP")
+        return "<h1>Success adding user to database</h1>"
+    except Exception as e:
+        print("NOOOOO")
+        print(e)
+        return "<h1>Failed to add user to database.</h1>"
+
+
+
+def read(cursor):
+    cursor.execute('''SELECT * FROM students''')  # execute an SQL statment
+    rv = cursor.fetchall()  # Retreive all rows returend by the SQL statment
+    Results = []
+    html = ""
+    for row in rv:  # Format the Output Results and add to return string
+        Result = {}
+        Result['Name'] = row[0].replace('\n', ' ')
+        Result['Email'] = row[1]
+        Result['ID'] = row[2]
+        html = html + (f"<tr style='border: 1px solid green'><th  style='border: 1px solid green'>{Result['Name']}</th> <th style='border: 1px solid green'>{Result['Email']}</th></tr> <br>")
+
+    html = f"<table style='border: 1px solid green'><tr style='border: 1px solid green'><th  style='border: 1px solid green'>Name</th><th style='border: 1px solid green'>Email</th></tr>{html}</table>"
+    # response = {'Results': Results, 'count': len(Results)}
+    # ret = app.response_class(
+    #     response=json.dumps(response),
+    #     status=200,
+    #     mimetype='application/json'
+    # )
+    # return ret  # Return the data in a string format
+    return html
+
+def update(cursor,id,email):
+    try:
+        cursor.execute(f"UPDATE students set email = '{email}' where studentID = '{id}'")
+        mysql.connection.commit()
+        return "<h1>Success updating user in database</h1>"
+    except:
+        return "<h1>Failed to update user in database.,/h1>"
+
+
+def delete(cursor,name):
+    try:
+        str = f"DELETE from students where studentName = '{name}'"
+        print(str)
+        cursor.execute(str)
+        mysql.connection.commit()
+        print("success")
+        return "<h1>Success deleted user in database</h1>"
+
+
+    except Exception as e:
+
+        print("error")
+
+        print(e)
+
+        return "<h1>Failed to add user to database.</h1>"
+
 @app.route("/add") #Add Student
 def add():
   name = request.args.get('name')
