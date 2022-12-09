@@ -20,10 +20,10 @@ def insert(cursor, name, email):
     try:
         cursor.execute(string)
         mysql.connection.commit()
-        print("success")
+        print("YUPPPP")
         return "<h1>Success adding user to database</h1>"
     except Exception as e:
-        print("error")
+        print("NOOOOO")
         print(e)
         return "<h1>Failed to add user to database.</h1>"
 
@@ -39,9 +39,9 @@ def read(cursor):
         Result['Name'] = row[0].replace('\n', ' ')
         Result['Email'] = row[1]
         Result['ID'] = row[2]
-        html = html + (f"<tr style='border: 1px solid green'><th  style='border: 1px solid green'>{Result['Name']}</th> <th style='border: 1px solid green'>{Result['Email']}</th></tr> <br>")
+        html = html + (f"<tr style='border: 1px solid blue'><th  style='border: 1px solid blue'>{Result['Name']}</th> <th style='border: 1px solid blue'>{Result['Email']}</th></tr> <br>")
 
-    html = f"<table style='border: 1px solid green'><tr style='border: 1px solid red'><th  style='border: 1px solid black'>Name</th><th style='border: 1px solid red'>Email</th></tr>{html}</table>"
+    html = f"<table style='border: 1px solid blue'><tr style='border: 1px solid red'><th  style='border: 1px solid black'>Name</th><th style='border: 1px solid red'>Email</th></tr>{html}</table>"
     # response = {'Results': Results, 'count': len(Results)}
     # ret = app.response_class(
     #     response=json.dumps(response),
@@ -57,7 +57,7 @@ def update(cursor,id,email):
         mysql.connection.commit()
         return "<h1>Success updating user in database</h1>"
     except:
-        return "<h1>Failed to update user in database.,/h1>"
+        return "<h1>Unable to upadte user.,/h1>"
 
 
 def delete(cursor,name):
@@ -66,48 +66,53 @@ def delete(cursor,name):
         print(str)
         cursor.execute(str)
         mysql.connection.commit()
-        print("success")
-        return "<h1>Success deleted user in database</h1>"
+        print("YUPPPP")
+        return "<h1>User Deleted successfully</h1>"
 
 
     except Exception as e:
 
-        print("error")
+        print("NOOOOO")
 
         print(e)
 
         return "<h1>Failed to add user to database.</h1>"
-
-@app.route("/add") #Add Student
+@app.route("/add")  # Add Student
 def add():
-  name = request.args.get('name')
-  email = request.args.get('email')
-  cur = mysql.connection.cursor() #create a connection to the SQL instance
-  s='''INSERT INTO students(studentName, email) VALUES('{}','{}');'''.format(name,email) # kludge - use stored proc or params
-  cur.execute(s)
-  mysql.connection.commit()
+    name = request.args.get('name')
+    email = request.args.get('email')
+    cur = mysql.connection.cursor()  # create a connection to the SQL instance
 
-  return '{"Result":"Success"}' # Really? maybe we should check!
-  
-@app.route("/") #Default - Show Data
-def read(): # Name of the method
-  cur = mysql.connection.cursor() #create a connection to the SQL instance
-  cur.execute('''SELECT * FROM students''') # execute an SQL statment
-  rv = cur.fetchall() #Retreive all rows returend by the SQL statment
-  Results=[]
-  for row in rv: #Format the Output Results and add to return string
-    Result={}
-    Result['Name']=row[0].replace('\n',' ')
-    Result['Email']=row[1]
-    Result['ID']=row[2]
-    Results.append(Result)
-  response={'Results':Results, 'count':len(Results)}
-  ret=app.response_class(
-    response=json.dumps(response),
-    status=200,
-    mimetype='application/json'
-  )
-  return ret #Return the data in a string format
+    return insert(cur, name, email)
+
+
+@app.route("/hello")  # Add Student
+def hello():
+    return '<h1>Hello World</h1>'
+
+
+@app.route("/")  # Default - Show Data
+def read_users():  # Name of the method
+    cur = mysql.connection.cursor()  # create a connection to the SQL instance
+    return read(cur)
+
+@app.route("/update")  # Default - Show Data
+def update_users():  # Name of the method
+    cur = mysql.connection.cursor()  # create a connection to the SQL instance
+
+    id = request.args.get('id')
+    print(id)
+    email = request.args.get('email')
+    print(email)
+    return update(cur, id, email)
+
+
+@app.route("/delete", methods=['GET', 'POST'])  # Default - Show Data
+def delete_users():
+    print(request.json)
+    cur = mysql.connection.cursor()  # create a connection to the SQL instance
+    name = request.json["name"]
+    print("Name is " + name)
+    return delete(cur, name)
 if __name__ == "__main__":
-  app.run(host='0.0.0.0',port='8080') #Run the flask app at port 8080
-
+    app.run(host='0.0.0.0', port='8080')  # Run the flask app at port 8080
