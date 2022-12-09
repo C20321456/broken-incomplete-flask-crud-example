@@ -20,10 +20,10 @@ def insert(cursor, name, email):
     try:
         cursor.execute(string)
         mysql.connection.commit()
-        print("YUPPPP")
+        print("success")
         return "<h1>Success adding user to database</h1>"
     except Exception as e:
-        print("NOOOOO")
+        print("error")
         print(e)
         return "<h1>Failed to add user to database.</h1>"
 
